@@ -3,8 +3,6 @@ package reductions
 import org.scalameter._
 import common._
 
-import scala.annotation.tailrec
-
 object LineOfSightRunner {
   
   val standardConfig = config(
@@ -86,7 +84,7 @@ object LineOfSight {
    *  work is divided and done recursively in parallel.
    */
   def upsweep(input: Array[Float], from: Int, end: Int, threshold: Int): Tree = {
-    if (end - from < threshold)
+    if (end - from <= threshold)
       Leaf(from, end, upsweepSequential(input, from, end))
     else {
       val mid = from + (end - from) / 2
@@ -125,15 +123,15 @@ object LineOfSight {
     tree: Tree): Unit = {
     tree match {
       case Leaf(from, until, maxPrevious) => downsweepSequential(input, output, startingAngle, from, until)
-      case Node(left, right) => parallel(downsweep(input, output, left.maxPrevious, left),
-                                         downsweep(input, output, max(left.maxPrevious, max(startingAngle, right.maxPrevious)), right))
+      case Node(left, right) => parallel(downsweep(input, output, startingAngle, left),
+                                         downsweep(input, output, max(left.maxPrevious, startingAngle), right))
     }
   }
 
   /** Compute the line-of-sight in parallel. */
   def parLineOfSight(input: Array[Float], output: Array[Float],
     threshold: Int): Unit = {
-    val t = upsweep(input, 0, input.length, threshold)
-    downsweep(input, output, 0, t)
+    val t = upsweep(input, 1, input.length, threshold)
+    downsweep(input, output, 1, t)
   }
 }
