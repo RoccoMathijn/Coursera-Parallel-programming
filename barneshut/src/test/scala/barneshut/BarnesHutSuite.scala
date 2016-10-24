@@ -42,6 +42,16 @@ import FloatOps._
     assert(quad.total == 1, s"${quad.total} should be 1")
   }
 
+  test("Leaf.insert(b) should return a new Fork if size > minimumSize") {
+    val b = new Body(123f, 18f, 26f, 0f, 0f)
+    val quad = Leaf(17.5f, 27.5f, 5f, Seq.empty)
+    val fork = quad.insert(b)
+    assert(fork.isInstanceOf[Fork])
+//    fork match {
+//      case Fork(nw, _, _, _) => assert(nw.toString == "")
+//    }
+  }
+
 
   test("Fork with 3 empty quadrants and 1 leaf (nw)") {
     val b = new Body(123f, 18f, 26f, 0f, 0f)
@@ -57,6 +67,25 @@ import FloatOps._
     assert(quad.massX ~= 18f, s"${quad.massX} should be 18f")
     assert(quad.massY ~= 26f, s"${quad.massY} should be 26f")
     assert(quad.total == 1, s"${quad.total} should be 1")
+  }
+
+  test("Fork") {
+    val nw = Empty(1f, 1f, 2)
+    val ne = Empty(3f, 1f, 2)
+    val sw = Empty(1f, 3f, 2)
+    val se = Empty(3f, 3f, 2)
+    val quad = Fork(nw, ne, sw, se)
+
+    assert(quad.centerX == 2f, s"${quad.centerX} centerx should be 2f")
+    assert(quad.centerY == 2f, s"${quad.centerY} centery should be 2f")
+    assert(quad.mass == 0, s"${quad.mass} mass should be 0")
+    assert(quad.massX == 2, s"${quad.massX} massx should be 0")
+    assert(quad.massY == 2, s"${quad.massY} massy should be 0")
+    assert(quad.total == 0, s"${quad.total} total should be 0")
+    val body = new Body(1, 1, 1, 1, 1)
+    val newQuad = quad.insert(body)
+
+    assert(newQuad.nw.total == 1)
   }
 
   test("Empty.insert(b) should return a Leaf with only that body") {
